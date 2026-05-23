@@ -30,10 +30,13 @@ from livekit.plugins import google as lk_google, openai as lk_openai, sarvam, si
 
 STT_PROVIDER       = "sarvam"
 LLM_PROVIDER       = "gemini"
-TTS_PROVIDER       = "openai"
+TTS_PROVIDER       = "gemini"
 
 GEMINI_LLM_MODEL   = "gemini-2.5-flash"
 OPENAI_LLM_MODEL   = "gpt-4o"
+
+GEMINI_TTS_MODEL   = "gemini-2.5-flash-preview-tts"
+GEMINI_TTS_VOICE   = "Aoede"       # "Aoede" has a premium, elegant digital voice profile
 
 OPENAI_TTS_MODEL   = "tts-1"
 OPENAI_TTS_VOICE   = "nova"       # "nova" has a clean, confident female tone
@@ -222,6 +225,14 @@ def _build_tts():
     elif TTS_PROVIDER == "openai":
         logger.info("TTS → OpenAI TTS (%s / %s)", OPENAI_TTS_MODEL, OPENAI_TTS_VOICE)
         return lk_openai.TTS(model=OPENAI_TTS_MODEL, voice=OPENAI_TTS_VOICE, speed=TTS_SPEED)
+    elif TTS_PROVIDER == "gemini":
+        logger.info("TTS → Google Gemini TTS (%s / %s)", GEMINI_TTS_MODEL, GEMINI_TTS_VOICE)
+        from livekit.plugins.google import beta as lk_google_beta
+        return lk_google_beta.GeminiTTS(
+            model=GEMINI_TTS_MODEL,
+            voice_name=GEMINI_TTS_VOICE,
+            api_key=os.getenv("GOOGLE_API_KEY"),
+        )
     else:
         raise ValueError(f"Unknown TTS_PROVIDER: {TTS_PROVIDER!r}")
 
